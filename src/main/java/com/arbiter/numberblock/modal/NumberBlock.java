@@ -21,6 +21,9 @@ import java.util.Date;
 @Entity
 @Table(name = "number_block")
 public class NumberBlock {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date", nullable = false)

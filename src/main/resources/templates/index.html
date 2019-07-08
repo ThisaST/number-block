@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <title>Hello, world!</title>
+    <title>Bit Coin Lottery</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1" name="viewport">
 
@@ -11,22 +11,74 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
 </head>
 <body>
-<h1><span th:text="'Hello, '">Hello, world!</span></h1>
-<table>
-    <th:block th:each="i : ${values}">
-        <th:block th:each="j : ${values}">
-            <tr>
-                <th:block th:each="i : ${values}">
-                    <td>
-                        <button th:text="${i*j}"></button>
-                    </td>
-                </th:block>
 
-            </tr>
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Bit Coin Lottery</h1>
+</div>
+
+<div class="container-fluid">
+    <div class="card-deck mb-3 text-center">
+
+        <th:block th:each="i : ${outercards}">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Free</h4>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <th:block th:each="i : ${values}">
+                            <th:block th:each="j : ${values}">
+                                <tr>
+                                    <th:block th:each="i : ${values}">
+                                        <td>
+                                            <div aria-label="Toolbar with button groups" class="btn-toolbar"
+                                                 role="toolbar">
+                                                <div aria-label="First group" class="btn-group mr-2" role="group">
+                                                    <button class="btn" th:text="${i*j}"></button>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </th:block>
+
+                                </tr>
+                            </th:block>
+                        </th:block>
+
+                    </table>
+                </div>
+            </div>
         </th:block>
-    </th:block>
+    </div>
 
-</table>
+    <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <div class="row">
+            <div class="col-12 col-md">
+                <h1>AAAAAAAAA</h1>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+
+<!--<h1><span th:text="'Hello, '">Hello, world!</span></h1>-->
+<!--<table>-->
+<!--<th:block th:each="i : ${values}">-->
+<!--<th:block th:each="j : ${values}">-->
+<!--<tr>-->
+<!--<th:block th:each="i : ${values}">-->
+<!--<td>-->
+<!--<button th:text="${i*j}"></button>-->
+<!--</td>-->
+<!--</th:block>-->
+
+<!--</tr>-->
+<!--</th:block>-->
+<!--</th:block>-->
+
+<!--</table>-->
+
 
 <script crossorigin="anonymous"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
