@@ -1,24 +1,53 @@
 package com.arbiter.numberblock.controller;
 
+import com.arbiter.numberblock.service.NumberBlockService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.ArrayList;
 
 /**
  * Created By Praneeth On 08/07/2019 for numberblock v1.0
  */
 
+@Slf4j
 @Controller
 public class NumberBlockController {
 
-    int[] outercards = {1, 2, 3, 4, 5};
-    int[] values = {1, 2, 3, 4, 5, 6, 7};
+    private final NumberBlockService numberBlockService;
 
-    @RequestMapping(value = {"/", "/index", "/index.html"})
+    public NumberBlockController(NumberBlockService numberBlockService) {
+        this.numberBlockService = numberBlockService;
+    }
+
+    @RequestMapping(value = {"/", "/index", "/index.html", "/loadData"})
     public String index(Model model) {
-        model.addAttribute("outercards", outercards);
-        model.addAttribute("values", values);
+        ArrayList<Integer> outerCards = new ArrayList<>();
+        ArrayList<String> padNumbers = new ArrayList<>();
+
+        for (int i = 1; i <= 10; i++) {
+            outerCards.add(i);
+        }
+
+        String number;
+        for (int i = 1; i <= 56; i++) {
+            if (i <= 9) {
+                number = "0" + i;
+                padNumbers.add(number);
+            } else {
+                number = String.valueOf(i);
+                padNumbers.add(number);
+            }
+
+        }
+
+        model.addAttribute("outerCards", outerCards);
+        model.addAttribute("padNumbers", padNumbers);
+        model.addAttribute("numberBlocks", numberBlockService.findAll());
 
         return "index";
     }
+
 }

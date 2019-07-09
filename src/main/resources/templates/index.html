@@ -6,89 +6,222 @@
     <title>Bit Coin Lottery</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1" name="viewport">
-
+    <!-- Bootstrap -->
     <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- JQuery -->
+    <script crossorigin="anonymous"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <!-- Popper -->
+    <script crossorigin="anonymous"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <!-- Bootstrap -->
+    <script crossorigin="anonymous"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        var selectedArr = [];
+
+        function clickFunction(cardId, id, button) {
+            var btnVal = $(button).text();
+            console.log("card ID : ", cardId);
+            selectedArr.push(id);
+            if (selectedArr.length === 6) {
+                alert("Limit Exceeded!");
+
+            } else {
+                $(button).find('span').remove();
+                if (id === btnVal.trim()) {
+                    $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
+                } else {
+                    $(button).html($('<span>' + id + '</span>'));
+                }
+            }
+        }
+    </script>
 </head>
 <body>
 
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">Bit Coin Lottery</h1>
+<div class="pricing-header px-1 py-1 pt-md-2 pb-md-1 mx-auto text-center">
+    <h1>Bit Coin Lottery</h1>
 </div>
 
-<div class="container-fluid">
-    <div class="card-deck mb-3 text-center">
-
-        <th:block th:each="i : ${outercards}">
-            <div class="card mb-4 box-shadow">
+<div class="container-fluid text-center">
+    <div class=" d-flex flex-wrap">
+        <th:block th:each="cardId : ${outerCards}">
+            <div class="card mb-1 mr-1 box-shadow d-sm-block d-md-block d-xl-block" th:id="'crd' + ${cardId}">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Free</h4>
+                    <h6 class="my-0 font-weight-normal">Pad <span th:text="${cardId}"></span></h6>
                 </div>
                 <div class="card-body">
-                    <table>
-                        <th:block th:each="i : ${values}">
-                            <th:block th:each="j : ${values}">
-                                <tr>
-                                    <th:block th:each="i : ${values}">
-                                        <td>
-                                            <div aria-label="Toolbar with button groups" class="btn-toolbar"
-                                                 role="toolbar">
-                                                <div aria-label="First group" class="btn-group mr-2" role="group">
-                                                    <button class="btn" th:text="${i*j}"></button>
-                                                </div>
-                                            </div>
-
-                                        </td>
-                                    </th:block>
-
-                                </tr>
-                            </th:block>
-                        </th:block>
-
-                    </table>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" id="random" type="radio"
+                               value="RANDOM">
+                        <label class="form-check-label" for="random">
+                            <i aria-hidden="true" class="fa fa-random"></i>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" id="deterministic" type="radio"
+                               value="DETERMINISTIC">
+                        <label class="form-check-label" for="deterministic">
+                            <i aria-hidden="true" class="fa fa-check"></i>
+                        </label>
+                    </div>
+                    <button class="btn btn-success btn-sm" type="button">
+                        <i aria-hidden="true" class="fa fa-pencil-square-o"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" type="button">
+                        <i aria-hidden="true" class="fa fa-trash-o"></i>
+                    </button>
+                    <hr>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} <= 7">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 7 and ${number} <= 14">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 14 and ${number} <= 21">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 21 and ${number} <= 28">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 28 and ${number} <= 35">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 35 and ${number} <= 42">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 42 and ${number} <= 49">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group">
+                                <th:block th:each="number : ${padNumbers}" th:if="${number} > 49 and ${number} <= 56">
+                                    <button class="btn btn-outline-primary btn-sm"
+                                            th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                            th:id="${number}"
+                                            type="button">
+                                        <span th:text="${number}"></span>
+                                    </button>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </th:block>
     </div>
-
-    <footer class="pt-4 my-md-5 pt-md-5 border-top">
+    <footer class="pt-0 my-md-0 pt-md-0 border-top">
         <div class="row">
             <div class="col-12 col-md">
-                <h1>AAAAAAAAA</h1>
+                <h3>STAKE : $50.00</h3>
             </div>
         </div>
     </footer>
+    <hr>
+    <button class="btn btn-primary btn-sm" th:onclick="|window.location.href='/loadData'|" type="submit">
+        <i aria-hidden="true" class="fa fa-tasks"></i>
+        Load Data
+    </button>
 
+    <div class="table-responsive">
+        <table class="table table-sm table-hover table-striped table-bordered">
+            <thead>
+            <tr>
+                <th scope="col-auto">#</th>
+                <th scope="col-auto">Date</th>
+                <th scope="col-auto">Number Combination</th>
+                <th scope="col-auto">Pick Type</th>
+                <th scope="col-auto">Cost</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="numBlock : ${numberBlocks}">
+                <tr>
+                    <td><span th:text="${numBlock.id}"></span></td>
+                    <td><span th:text="${numBlock.date}"></span></td>
+                    <td><span th:text="${numBlock.numberCombination}"></span></td>
+                    <td><span th:text="${numBlock.pickType}"></span></td>
+                    <td><span th:text="${numBlock.cost}"></span></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
 </div>
-
-
-<!--<h1><span th:text="'Hello, '">Hello, world!</span></h1>-->
-<!--<table>-->
-<!--<th:block th:each="i : ${values}">-->
-<!--<th:block th:each="j : ${values}">-->
-<!--<tr>-->
-<!--<th:block th:each="i : ${values}">-->
-<!--<td>-->
-<!--<button th:text="${i*j}"></button>-->
-<!--</td>-->
-<!--</th:block>-->
-
-<!--</tr>-->
-<!--</th:block>-->
-<!--</th:block>-->
-
-<!--</table>-->
-
-
-<script crossorigin="anonymous"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script crossorigin="anonymous"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script crossorigin="anonymous"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
 </body>
 </html>
