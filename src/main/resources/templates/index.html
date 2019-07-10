@@ -147,13 +147,8 @@
                         randomMap.set(crdId, randomCount + 1);
                         $('#stake').text(stakeTotal.toFixed(2));
                     }
-                    // var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
-                    // console.log("stakeVal :", stakeVal);
-                    // var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
-                    // console.log("stakeTotal :", stakeTotal);
-                    // $('#stake').text(stakeTotal.toFixed(2));
 
-                    // reset Card Map
+                    // reset data
                     numBlockMap.set('crd' + crdId, []);
                     stakeCount = 0;
                     randomCount = 0;
@@ -179,13 +174,8 @@
                         randomMap.set(crdId, randomCount + 1);
                         $('#stake').text(stakeTotal.toFixed(2));
                     }
-                    // var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
-                    // console.log("stakeVal :", stakeVal);
-                    // var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
-                    // console.log("stakeTotal :", stakeTotal);
-                    // $('#stake').text(stakeTotal.toFixed(2));
 
-                    // reset Card Map
+                    // reset data
                     numBlockMap.set('crd' + crdId, []);
                     stakeCount = 0;
                     randomCount = 0;
@@ -194,7 +184,6 @@
                 }
             }
         }
-
 
         function deleteClickFunction(crdId, fieldsetId) {
             var selectedRandomArr = [];
@@ -213,13 +202,7 @@
                     $('#stake').text(stakeTotal.toFixed(2));
                 }
 
-                // var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
-                // console.log("stakeVal :", stakeVal);
-                // var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
-                // console.log("stakeTotal :", stakeTotal);
-                // $('#stake').text(stakeTotal.toFixed(2));
-
-                // reset Card Map
+                // reset data
                 numBlockMap.set('crd' + crdId, []);
                 stakeCount = 0;
                 randomCount = 0;
@@ -227,8 +210,6 @@
                 randomMap.set(crdId, undefined);
             }
         }
-
-
     </script>
 </head>
 <body>
@@ -238,155 +219,161 @@
 </div>
 
 <div class="container-fluid text-center">
-    <div class=" d-flex flex-wrap">
-        <th:block th:each="cardId : ${outerCards}">
-            <div class="card mb-1 mr-1 box-shadow d-sm-block d-md-block d-xl-block" th:id="'crd' + ${cardId}">
-                <div class="card-header">
-                    <h6 class="my-0 font-weight-normal">Pad <span th:text="${cardId}"></span></h6>
-                </div>
-                <div class="card-body">
-                    <button class="btn btn-primary btn-sm"
-                            th:attr="onclick=|randomClickFunction(${cardId},'fieldset' + '${cardId}', this)|"
-                            th:id="'randomBtn' + ${cardId}"
-                            title="Random Select" type="button"
-                            value="RANDOM">
-                        <i aria-hidden="true" class="fa fa-random"></i>
-                    </button>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" id="deterministic" name="selectType"
-                               th:attr="onclick=|deterministicClickFunction(${cardId}, 'fieldset' + '${cardId}', this)|"
-                               title="Deterministic Select"
-                               type="checkbox"
-                               value="DETERMINISTIC">
-                        <label class="form-check-label" for="deterministic">
-                            <i aria-hidden="true" class="fa fa-check"></i>
-                        </label>
+    <form method="post" th:action="@{/saveNumberBlock}" th:object="${numberBlock}">
+        <div class=" d-flex flex-wrap">
+            <th:block th:each="cardId : ${outerCards}">
+                <div class="card mb-1 mr-1 box-shadow d-sm-block d-md-block d-xl-block" th:id="'crd' + ${cardId}">
+                    <div class="card-header">
+                        <h6 class="my-0 font-weight-normal">Pad <span th:text="${cardId}"></span></h6>
                     </div>
-                    <button class="btn btn-danger btn-sm"
-                            th:attr="onclick=|deleteClickFunction(${cardId}, 'fieldset' + '${cardId}')|"
-                            title="Remove Select"
-                            type="button">
-                        <i aria-hidden="true" class="fa fa-trash-o"></i>
-                    </button>
-                    <hr>
-                    <fieldset disabled th:id="'fieldset' + ${cardId}">
-                        <div class="container-fluid" th:id="'numContainer' + ${cardId}">
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}" th:if="${number} <= 7">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 7 and ${number} <= 14">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 14 and ${number} <= 21">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 21 and ${number} <= 28">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 28 and ${number} <= 35">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 35 and ${number} <= 42">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 42 and ${number} <= 49">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="btn-group">
-                                    <th:block th:each="number : ${padNumbers}"
-                                              th:if="${number} > 49 and ${number} <= 56">
-                                        <button class="btn btn-outline-primary btn-sm"
-                                                th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
-                                                th:id="${number}"
-                                                type="button">
-                                            <span th:text="${number}"></span>
-                                        </button>
-                                    </th:block>
-                                </div>
-                            </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary btn-sm"
+                                th:attr="onclick=|randomClickFunction(${cardId},'fieldset' + '${cardId}', this)|"
+                                th:id="'randomBtn' + ${cardId}" title="Random Select"
+                                type="button" value="RANDOM">
+                            <i aria-hidden="true" class="fa fa-random"></i>
+                        </button>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" id="deterministic" name="selectType"
+                                   th:attr="onclick=|deterministicClickFunction(${cardId}, 'fieldset' + '${cardId}', this)|"
+                                   title="Deterministic Select"
+                                   type="checkbox" value="DETERMINISTIC">
+                            <label class="form-check-label" for="deterministic">
+                                <i aria-hidden="true" class="fa fa-check"></i>
+                            </label>
                         </div>
-                    </fieldset>
+                        <button class="btn btn-danger btn-sm"
+                                th:attr="onclick=|deleteClickFunction(${cardId}, 'fieldset' + '${cardId}')|"
+                                title="Remove Select"
+                                type="button">
+                            <i aria-hidden="true" class="fa fa-trash-o"></i>
+                        </button>
+                        <hr>
+                        <fieldset disabled th:id="'fieldset' + ${cardId}">
+                            <div class="container-fluid" th:id="'numContainer' + ${cardId}">
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}" th:if="${number} <= 7">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 7 and ${number} <= 14">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 14 and ${number} <= 21">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 21 and ${number} <= 28">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 28 and ${number} <= 35">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 35 and ${number} <= 42">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 42 and ${number} <= 49">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="btn-group">
+                                        <th:block th:each="number : ${padNumbers}"
+                                                  th:if="${number} > 49 and ${number} <= 56">
+                                            <button class="btn btn-outline-primary btn-sm"
+                                                    th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
+                                                    th:id="${number}"
+                                                    type="button">
+                                                <span th:text="${number}"></span>
+                                            </button>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </th:block>
+        </div>
+        <footer class="pt-0 my-md-0 pt-md-0 border-top">
+            <div class="row">
+                <div class="col-6 col-md">
+                    <h3>STAKE : $<span id="stake" th:field="*{cost}">0.00</span></h3>
+                </div>
+                <div class="col-6 col-md">
+                    <button class="btn btn-success btn-sm" type="submit">
+                        <i aria-hidden="true" class="fa fa-save"></i>
+                        Submit
+                    </button>
                 </div>
             </div>
-        </th:block>
-    </div>
-    <footer class="pt-0 my-md-0 pt-md-0 border-top">
-        <div class="row">
-            <div class="col-12 col-md">
-                <h3>STAKE : $<span id="stake">0.00</span></h3>
-            </div>
-        </div>
-    </footer>
+        </footer>
+    </form>
     <hr>
 
     <button class="btn btn-primary btn-sm" th:onclick="|window.location.href='/loadData'|" type="submit">

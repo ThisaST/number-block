@@ -1,5 +1,6 @@
 package com.arbiter.numberblock.controller;
 
+import com.arbiter.numberblock.modal.NumberBlock;
 import com.arbiter.numberblock.service.NumberBlockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -42,7 +43,7 @@ public class NumberBlockController {
             }
 
         }
-
+        model.addAttribute("numberBlock", new NumberBlock());
         model.addAttribute("outerCards", outerCards);
         model.addAttribute("padNumbers", padNumbers);
         model.addAttribute("numberBlocks", numberBlockService.findAll());
@@ -50,4 +51,10 @@ public class NumberBlockController {
         return "index";
     }
 
+    @RequestMapping(value = {"saveNumberBlock"})
+    public String saveData(Model model) {
+
+
+        return "index";
+    }
 }
