@@ -29,20 +29,47 @@
 
     <script>
         var selectedArr = [];
+        var numBlockMap = new Map();
 
         function clickFunction(cardId, id, button) {
             var btnVal = $(button).text();
             console.log("card ID : ", cardId);
+            selectedArr = [];
             selectedArr.push(id);
-            if (selectedArr.length === 6) {
-                alert("Limit Exceeded!");
 
-            } else {
+            if (numBlockMap.get(cardId) === undefined) {
+                numBlockMap.set(cardId, selectedArr);
                 $(button).find('span').remove();
                 if (id === btnVal.trim()) {
                     $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
                 } else {
                     $(button).html($('<span>' + id + '</span>'));
+                }
+            } else {
+                console.log("numBlockMap.get(cardId) : ", numBlockMap.get(cardId));
+                var currentArr = numBlockMap.get(cardId);
+                if (currentArr.length >= 6) {
+                    $('#limitDialog').modal('show');
+                } else {
+                    currentArr.push(id);
+                    console.log("currentArr : ", currentArr);
+                    numBlockMap.set(cardId, currentArr);
+                    console.log("numBlockMap : ", numBlockMap);
+                    console.log("numBlockMap.get(cardId).length : ", numBlockMap.get(cardId).length);
+                    $(button).find('span').remove();
+                    if (id === btnVal.trim()) {
+                        $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
+                    } else {
+                        $(button).html($('<span>' + id + '</span>'));
+                    }
+
+                    if (currentArr.length === 6) {
+                        var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                        console.log("stakeVal :", stakeVal);
+                        var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
+                        console.log("stakeTotal :", stakeTotal);
+                        $('#stake').text(stakeTotal.toFixed(2));
+                    }
                 }
             }
         }
@@ -188,16 +215,18 @@
     <footer class="pt-0 my-md-0 pt-md-0 border-top">
         <div class="row">
             <div class="col-12 col-md">
-                <h3>STAKE : $50.00</h3>
+                <h3>STAKE : $<span id="stake">0.00</span></h3>
             </div>
         </div>
     </footer>
     <hr>
+
     <button class="btn btn-primary btn-sm" th:onclick="|window.location.href='/loadData'|" type="submit">
         <i aria-hidden="true" class="fa fa-tasks"></i>
         Load Data
     </button>
 
+    <!-- Load Data Table -->
     <div class="table-responsive">
         <table class="table table-sm table-hover table-striped table-bordered">
             <thead>
@@ -221,6 +250,24 @@
             </th:block>
             </tbody>
         </table>
+    </div>
+
+    <!-- Modal -->
+    <div aria-hidden="true" aria-labelledby="dialogTitle" class="modal fade" id="limitDialog" role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dialogTitle">Warning!</h5>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Limit Exceeded! Max Limit is 6 numbers.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
