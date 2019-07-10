@@ -48,25 +48,41 @@
             } else {
                 console.log("numBlockMap.get(cardId) : ", numBlockMap.get(cardId));
                 var currentArr = numBlockMap.get(cardId);
-                if (currentArr.length >= 6) {
-                    $('#limitDialog').modal('show');
-                } else {
-                    currentArr.push(id);
-                    console.log("currentArr : ", currentArr);
-                    numBlockMap.set(cardId, currentArr);
-                    console.log("numBlockMap : ", numBlockMap);
-                    console.log("numBlockMap.get(cardId).length : ", numBlockMap.get(cardId).length);
-                    $(button).find('span').remove();
-                    if (id === btnVal.trim()) {
-                        $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
-                    } else {
-                        $(button).html($('<span>' + id + '</span>'));
-                    }
 
-                    if (currentArr.length === 6) {
+                $(button).find('span').remove();
+                if (id === btnVal.trim()) {
+                    if (currentArr.length >= 6) {
+                        $(button).html($('<span>' + id + '</span>'));
+                        $('#limitDialog').modal('show');
+                    } else {
+                        $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
+                        currentArr.push(id);
+                        console.log("currentArr : ", currentArr);
+                        numBlockMap.set(cardId, currentArr);
+                        console.log("numBlockMap : ", numBlockMap);
+                        console.log("numBlockMap.get(cardId).length : ", numBlockMap.get(cardId).length);
+
+                        if (currentArr.length === 6) {
+                            var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                            console.log("stakeVal :", stakeVal);
+                            var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
+                            console.log("stakeTotal :", stakeTotal);
+                            $('#stake').text(stakeTotal.toFixed(2));
+                        }
+                    }
+                } else {
+                    $(button).html($('<span>' + id + '</span>'));
+                    var currentArr = numBlockMap.get(cardId);
+                    console.log("currentArr 2 BEFORE: ", currentArr);
+                    currentArr.splice(currentArr.indexOf(id), 1);
+                    console.log("currentArr 2 AFTER: ", currentArr);
+                    numBlockMap.set(cardId, currentArr);
+                    console.log("numBlockMap AFTER : ", numBlockMap);
+
+                    if (currentArr.length === 5) {
                         var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
                         console.log("stakeVal :", stakeVal);
-                        var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
+                        var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
                         console.log("stakeTotal :", stakeTotal);
                         $('#stake').text(stakeTotal.toFixed(2));
                     }
@@ -103,9 +119,6 @@
                             <i aria-hidden="true" class="fa fa-check"></i>
                         </label>
                     </div>
-                    <button class="btn btn-success btn-sm" type="button">
-                        <i aria-hidden="true" class="fa fa-pencil-square-o"></i>
-                    </button>
                     <button class="btn btn-danger btn-sm" type="button">
                         <i aria-hidden="true" class="fa fa-trash-o"></i>
                     </button>
