@@ -30,6 +30,8 @@
     <script>
         var selectedArr = [];
         var numBlockMap = new Map();
+        var randomCount = 0;
+        var randomMap = new Map();
 
         function clickFunction(cardId, id, button) {
             var btnVal = $(button).text();
@@ -90,6 +92,9 @@
             }
         }
 
+        var stakeCount = 0;
+        var stakeMap = new Map();
+
         function randomClickFunction(cardId, fieldsetId, button) {
             $('#' + fieldsetId).prop('disabled', true);
             var randomArr = [];
@@ -104,33 +109,125 @@
                 if (randomArr.indexOf(r) === -1) randomArr.push(r1);
             }
 
-            console.log($(button).prop("value"));
-            console.log(randomArr);
-
             for (var i = 1; i <= 56; i++) {
-                console.log($('#' + (i <= 9 ? '0' + i : i)).text().trim());
                 if ($('#' + 'crd' + cardId).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
                     $('#' + 'crd' + cardId).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
                 }
             }
 
             for (var i = 0; i < randomArr.length; i++) {
-                // console.log(randomArr[i]);
                 $('#' + 'crd' + cardId).find('#' + randomArr[i]).html($('<i/>', {class: 'fa fa-times fa-lg'}));
             }
 
-
+            if (stakeMap.get(cardId) === undefined) {
+                var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
+                stakeMap.set(cardId, stakeCount + 1);
+                $('#stake').text(stakeTotal.toFixed(2));
+            }
         }
 
         function deterministicClickFunction(crdId, fieldsetId, checkbox) {
             if ($(checkbox).prop("checked") == true) {
                 $('#' + fieldsetId).prop('disabled', false);
                 $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', true);
+
+                var selectedRandomArr = [];
+                for (var i = 1; i <= 56; i++) {
+                    if ($('#' + 'crd' + crdId).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                        $('#' + 'crd' + crdId).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
+                        selectedRandomArr.push(i);
+                    }
+                }
+
+                if (selectedRandomArr.length === 6) {
+                    if (randomMap.get(crdId) === undefined) {
+                        var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                        var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                        randomMap.set(crdId, randomCount + 1);
+                        $('#stake').text(stakeTotal.toFixed(2));
+                    }
+                    // var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                    // console.log("stakeVal :", stakeVal);
+                    // var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                    // console.log("stakeTotal :", stakeTotal);
+                    // $('#stake').text(stakeTotal.toFixed(2));
+
+                    // reset Card Map
+                    numBlockMap.set('crd' + crdId, []);
+                    stakeCount = 0;
+                    randomCount = 0;
+                    stakeMap.set(crdId, undefined);
+                    randomMap.set(crdId, undefined);
+                }
             } else {
                 $('#' + fieldsetId).prop('disabled', true);
                 $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', false);
+
+                var selectedRandomArr = [];
+                for (var i = 1; i <= 56; i++) {
+                    if ($('#' + 'crd' + crdId).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                        $('#' + 'crd' + crdId).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
+                        selectedRandomArr.push(i);
+                    }
+                }
+
+                if (selectedRandomArr.length === 6) {
+                    if (randomMap.get(crdId) === undefined) {
+                        var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                        var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                        randomMap.set(crdId, randomCount + 1);
+                        $('#stake').text(stakeTotal.toFixed(2));
+                    }
+                    // var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                    // console.log("stakeVal :", stakeVal);
+                    // var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                    // console.log("stakeTotal :", stakeTotal);
+                    // $('#stake').text(stakeTotal.toFixed(2));
+
+                    // reset Card Map
+                    numBlockMap.set('crd' + crdId, []);
+                    stakeCount = 0;
+                    randomCount = 0;
+                    stakeMap.set(crdId, undefined);
+                    randomMap.set(crdId, undefined);
+                }
             }
         }
+
+
+        function deleteClickFunction(crdId, fieldsetId) {
+            var selectedRandomArr = [];
+            for (var i = 1; i <= 56; i++) {
+                if ($('#' + 'crd' + crdId).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                    $('#' + 'crd' + crdId).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
+                    selectedRandomArr.push(i);
+                }
+            }
+
+            if (selectedRandomArr.length === 6) {
+                if (randomMap.get(crdId) === undefined) {
+                    var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                    var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                    randomMap.set(crdId, randomCount + 1);
+                    $('#stake').text(stakeTotal.toFixed(2));
+                }
+
+                // var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                // console.log("stakeVal :", stakeVal);
+                // var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                // console.log("stakeTotal :", stakeTotal);
+                // $('#stake').text(stakeTotal.toFixed(2));
+
+                // reset Card Map
+                numBlockMap.set('crd' + crdId, []);
+                stakeCount = 0;
+                randomCount = 0;
+                stakeMap.set(crdId, undefined);
+                randomMap.set(crdId, undefined);
+            }
+        }
+
 
     </script>
 </head>
@@ -165,7 +262,10 @@
                             <i aria-hidden="true" class="fa fa-check"></i>
                         </label>
                     </div>
-                    <button class="btn btn-danger btn-sm" title="Remove Select" type="button">
+                    <button class="btn btn-danger btn-sm"
+                            th:attr="onclick=|deleteClickFunction(${cardId}, 'fieldset' + '${cardId}')|"
+                            title="Remove Select"
+                            type="button">
                         <i aria-hidden="true" class="fa fa-trash-o"></i>
                     </button>
                     <hr>
