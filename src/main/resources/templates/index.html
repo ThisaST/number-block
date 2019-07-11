@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <!--    /**-->
+    <!--    * Created By Praneeth On 08/07/2019 for numberblock v1.0-->
+    <!--    */-->
     <meta charset="utf-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <title>Bit Coin Lottery</title>
@@ -16,9 +19,7 @@
 
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!--    <script crossorigin="anonymous"-->
-    <!--            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
-    <!--            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>-->
+
     <!-- Popper -->
     <script crossorigin="anonymous"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
@@ -198,44 +199,6 @@
             }
         }
 
-        //
-        // $('#numberBlockForm').submit(function (e) {
-        //     // reference to form object
-        //     var form = this;
-        //     console.log("form : ", form);
-        //
-        //     // for stopping the default action of element
-        //     e.preventDefault();
-        //
-        //     // mapthat will hold form data
-        //     var formData = {}
-        //     //iterate over form elements
-        //     // $.each(this, function (i, v) {
-        //     //     var input = $(v);
-        //     //     // populate form data as key-value pairs
-        //     //     // with the name of input as key and its value as value
-        //     //     formData[input.attr("name")] = input.val();
-        //     // });
-        //     var list = [];
-        //     for (var i = 1; i < 100; i++) {
-        //         list.push(i);
-        //     }
-        //     formData = {"LIST": list}
-        //     console.log("formData : ", formData);
-        //
-        //     $.ajax({
-        //         type: form.attr('method'), // method attribute of form
-        //         url: form.attr('action'),  // action attribute of form
-        //         dataType: 'json',
-        //         beforeSend: function (xhr) {
-        //             xhr.setRequestHeader("Accept", "application/json");
-        //             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        //         },
-        //         // convert form data to json format
-        //         data: JSON.stringify(formData),
-        //     });
-        // });
-
         $(document).ready(function () {
 
             // SUBMIT FORM
@@ -248,10 +211,8 @@
 
             function ajaxPost() {
                 // PREPARE FORM DATA
-
-                var selectedCardMap = new Map();
                 var formString = [];
-                for (var y = 1; y <= 10; y++) {
+                for (var y = 1; y < 11; y++) {
                     var selectedData = [];
 
                     for (var i = 1; i <= 56; i++) {
@@ -276,9 +237,7 @@
                     }
                 }
 
-                console.log("formString : ", formString.toString());
                 var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
-                console.log("formData : ", formData);
                 // DO POST
                 $.ajax({
                     type: "POST",
@@ -287,15 +246,14 @@
                     data: formData,
                     dataType: 'text',
                     success: function (result) {
-                        console.log(result);
+                        console.debug(result);
                     },
                     error: function (jqXhr, textStatus, errorThrown) {
-                        console.log("ERROR: ", errorThrown);
+                        console.error("ERROR: ", errorThrown);
                     }
                 });
             }
-        })
-        ;
+        });
     </script>
 </head>
 <body>
@@ -449,22 +407,20 @@
         </div>
         <footer class="pt-0 my-md-0 pt-md-0 border-top">
             <div class="row">
-                <div class="col-6 col-md">
+                <div class="col-12 col-md">
                     <h3>STAKE : $<span id="stake" th:field="*{cost}">0.00</span></h3>
-                </div>
-                <div class="col-6 col-md">
-                    <button class="btn btn-success btn-sm"
-                            type="submit">
-                        <i aria-hidden="true" class="fa fa-save"></i>
-                        Submit
-                    </button>
                 </div>
             </div>
         </footer>
-    </form>
-    <hr>
 
-    <button class="btn btn-primary btn-sm" th:onclick="|window.location.href='/loadData'|" type="button">
+        <hr>
+        <button class="btn btn-success btn-sm float-right"
+                type="submit">
+            <i aria-hidden="true" class="fa fa-save"></i>
+            Submit
+        </button>
+    </form>
+    <button class="btn btn-primary btn-sm float-right" th:onclick="|window.location.href='/loadData'|" type="button">
         <i aria-hidden="true" class="fa fa-tasks"></i>
         Load Data
     </button>

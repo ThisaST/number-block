@@ -46,27 +46,20 @@ public class NumberBlockController {
     @ResponseBody
     public String saveData(Model model, @RequestBody NumberBlockData numberBlockData) {
         indexData(model);
-        log.info("SIZE : " + numberBlockData.getNumberBlockList().size());
         for (int i = 0; i < numberBlockData.getNumberBlockList().size(); i++) {
             Date date = numberBlockData.getNumberBlockList().get(i).getDate();
             String numberCombination = numberBlockData.getNumberBlockList().get(i).getNumberCombination();
             String pickType = numberBlockData.getNumberBlockList().get(i).getPickType();
             BigDecimal cost = numberBlockData.getNumberBlockList().get(i).getCost();
 
-            log.info("Date : " + date);
-            log.info("numberCombination : " + numberCombination);
-            log.info("pickType : " + pickType);
-            log.info("cost : " + cost);
-
             NumberBlock numberBlock = new NumberBlock();
             numberBlock.setDate(date);
             numberBlock.setNumberCombination(numberCombination);
             numberBlock.setPickType(pickType);
             numberBlock.setCost(cost);
-            model.addAttribute("result", numberBlockService.save(numberBlock));
+            numberBlockService.save(numberBlock);
         }
-        model.addAttribute("numberBlocks", numberBlockService.findAll());
-        return "index";
+        return "Success";
     }
 
     private void indexData(Model model) {
