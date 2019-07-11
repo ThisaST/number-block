@@ -15,9 +15,10 @@
     <link href="css/style.css" rel="stylesheet">
 
     <!-- JQuery -->
-    <script crossorigin="anonymous"
-            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!--    <script crossorigin="anonymous"-->
+    <!--            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
+    <!--            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>-->
     <!-- Popper -->
     <script crossorigin="anonymous"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
@@ -26,12 +27,13 @@
     <script crossorigin="anonymous"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
     <script>
+        var randomCount = 0;
+        var stakeCount = 0;
         var selectedArr = [];
         var numBlockMap = new Map();
-        var randomCount = 0;
         var randomMap = new Map();
+        var stakeMap = new Map();
 
         function clickFunction(cardId, id, button) {
             var btnVal = $(button).text();
@@ -79,9 +81,6 @@
                 }
             }
         }
-
-        var stakeCount = 0;
-        var stakeMap = new Map();
 
         function randomClickFunction(cardId, fieldsetId, button) {
             $('#' + fieldsetId).prop('disabled', true);
@@ -198,6 +197,105 @@
                 randomMap.set(crdId, undefined);
             }
         }
+
+        //
+        // $('#numberBlockForm').submit(function (e) {
+        //     // reference to form object
+        //     var form = this;
+        //     console.log("form : ", form);
+        //
+        //     // for stopping the default action of element
+        //     e.preventDefault();
+        //
+        //     // mapthat will hold form data
+        //     var formData = {}
+        //     //iterate over form elements
+        //     // $.each(this, function (i, v) {
+        //     //     var input = $(v);
+        //     //     // populate form data as key-value pairs
+        //     //     // with the name of input as key and its value as value
+        //     //     formData[input.attr("name")] = input.val();
+        //     // });
+        //     var list = [];
+        //     for (var i = 1; i < 100; i++) {
+        //         list.push(i);
+        //     }
+        //     formData = {"LIST": list}
+        //     console.log("formData : ", formData);
+        //
+        //     $.ajax({
+        //         type: form.attr('method'), // method attribute of form
+        //         url: form.attr('action'),  // action attribute of form
+        //         dataType: 'json',
+        //         beforeSend: function (xhr) {
+        //             xhr.setRequestHeader("Accept", "application/json");
+        //             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        //         },
+        //         // convert form data to json format
+        //         data: JSON.stringify(formData),
+        //     });
+        // });
+
+        $(document).ready(function () {
+
+            // SUBMIT FORM
+            $("#numberBlockForm").submit(function (event) {
+                // Prevent the form from submitting via the browser.
+                event.preventDefault();
+                ajaxPost();
+            });
+
+
+            function ajaxPost() {
+                // PREPARE FORM DATA
+
+                var selectedCardMap = new Map();
+                var formString = [];
+                for (var y = 1; y <= 10; y++) {
+                    var selectedData = [];
+
+                    for (var i = 1; i <= 56; i++) {
+                        if ($('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                            $('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
+                            selectedData.push((i <= 9 ? '0' + i : i));
+                        }
+                    }
+
+                    if (selectedData.length === 6) {
+                        if ($('#' + 'deterministic' + y).is(":checked")) {
+                            formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                                ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
+                                ", \"pickType\" : " + "\"" + $('#' + 'deterministic' + y).val() + "\"" +
+                                ", \"cost\" : " + "\"" + $('#stake').text() + "\"" + "}");
+                        } else {
+                            formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                                ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
+                                ", \"pickType\" : " + "\"" + $('#' + 'randomBtn' + y).val() + "\"" +
+                                ", \"cost\" : " + "\"" + $('#stake').text() + "\"" + "}");
+                        }
+                    }
+                }
+
+                console.log("formString : ", formString.toString());
+                var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
+                console.log("formData : ", formData);
+                // DO POST
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    url: window.location.href + "/saveNumberBlock",
+                    data: formData,
+                    dataType: 'text',
+                    success: function (result) {
+                        console.log(result);
+                    },
+                    error: function (jqXhr, textStatus, errorThrown) {
+                        console.log("ERROR: ", errorThrown);
+                    }
+                });
+            }
+        })
+        ;
     </script>
 </head>
 <body>
@@ -207,7 +305,7 @@
 </div>
 
 <div class="container-fluid text-center">
-    <form id="numberBlockForm" method="post" th:action="@{/saveNumberBlock}" th:object="${numberBlock}">
+    <form id="numberBlockForm">
         <div class=" d-flex flex-wrap">
             <th:block th:each="cardId : ${outerCards}">
                 <div class="card mb-1 mr-1 box-shadow d-sm-block d-md-block d-xl-block" th:id="'crd' + ${cardId}">
@@ -222,8 +320,9 @@
                             <i aria-hidden="true" class="fa fa-random"></i>
                         </button>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" id="deterministic" name="selectType"
+                            <input class="form-check-input" name="selectType"
                                    th:attr="onclick=|deterministicClickFunction(${cardId}, 'fieldset' + '${cardId}', this)|"
+                                   th:id="'deterministic' + ${cardId}"
                                    title="Deterministic Select"
                                    type="checkbox" value="DETERMINISTIC">
                             <label class="form-check-label" for="deterministic">
@@ -354,7 +453,8 @@
                     <h3>STAKE : $<span id="stake" th:field="*{cost}">0.00</span></h3>
                 </div>
                 <div class="col-6 col-md">
-                    <button class="btn btn-success btn-sm" type="submit">
+                    <button class="btn btn-success btn-sm"
+                            type="submit">
                         <i aria-hidden="true" class="fa fa-save"></i>
                         Submit
                     </button>
@@ -364,7 +464,7 @@
     </form>
     <hr>
 
-    <button class="btn btn-primary btn-sm" th:onclick="|window.location.href='/loadData'|" type="submit">
+    <button class="btn btn-primary btn-sm" th:onclick="|window.location.href='/loadData'|" type="button">
         <i aria-hidden="true" class="fa fa-tasks"></i>
         Load Data
     </button>
