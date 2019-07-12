@@ -15,6 +15,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NumberBlockData {
+public class NumberBlockJsonMapper {
     List<NumberBlock> numberBlockList;
 }

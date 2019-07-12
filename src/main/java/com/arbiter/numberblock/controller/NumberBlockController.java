@@ -1,7 +1,7 @@
 package com.arbiter.numberblock.controller;
 
 import com.arbiter.numberblock.modal.NumberBlock;
-import com.arbiter.numberblock.modal.NumberBlockData;
+import com.arbiter.numberblock.modal.NumberBlockJsonMapper;
 import com.arbiter.numberblock.service.NumberBlockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -44,19 +44,21 @@ public class NumberBlockController {
 
     @RequestMapping(value = {"/saveNumberBlock", "/loadData/saveNumberBlock"}, method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String saveData(Model model, @RequestBody NumberBlockData numberBlockData) {
+    public String saveData(Model model, @RequestBody NumberBlockJsonMapper numberBlockJsonMapper) {
         indexData(model);
-        for (int i = 0; i < numberBlockData.getNumberBlockList().size(); i++) {
-            Date date = numberBlockData.getNumberBlockList().get(i).getDate();
-            String numberCombination = numberBlockData.getNumberBlockList().get(i).getNumberCombination();
-            String pickType = numberBlockData.getNumberBlockList().get(i).getPickType();
-            BigDecimal cost = numberBlockData.getNumberBlockList().get(i).getCost();
+        for (int i = 0; i < numberBlockJsonMapper.getNumberBlockList().size(); i++) {
+            Date date = numberBlockJsonMapper.getNumberBlockList().get(i).getDate();
+            String numberCombination = numberBlockJsonMapper.getNumberBlockList().get(i).getNumberCombination();
+            String pickType = numberBlockJsonMapper.getNumberBlockList().get(i).getPickType();
+            BigDecimal cost = numberBlockJsonMapper.getNumberBlockList().get(i).getCost();
 
             NumberBlock numberBlock = new NumberBlock();
             numberBlock.setDate(date);
             numberBlock.setNumberCombination(numberCombination);
             numberBlock.setPickType(pickType);
             numberBlock.setCost(cost);
+
+//          Save Data
             numberBlockService.save(numberBlock);
         }
         return "Success";
