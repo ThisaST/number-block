@@ -34,57 +34,130 @@
         var selectedArr = [];
         var numBlockMap = new Map();
         var randomMap = new Map();
+        var randomDataMap = new Map();
         var stakeMap = new Map();
+        var stakeDefault = 0.00;
+        const STAKEAMT = 3.50;
 
         function clickFunction(cardId, id, button) {
             var btnVal = $(button).text();
             selectedArr = [];
+            var selectedNumArr = [];
             selectedArr.push(id);
+            var msg = "";
 
-            if (numBlockMap.get(cardId) === undefined) {
-                numBlockMap.set(cardId, selectedArr);
-                $(button).find('span').remove();
-                if (id === btnVal.trim()) {
-                    $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
-                } else {
-                    $(button).html($('<span>' + id + '</span>'));
+            for (var i = 1; i <= 56; i++) {
+                if ($('#' + cardId).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                    selectedNumArr.push(parseInt(i <= 9 ? "0" + i : i));
                 }
-            } else {
-                var currentArr = numBlockMap.get(cardId);
+            }
 
-                $(button).find('span').remove();
-                if (id === btnVal.trim()) {
-                    if (currentArr.length >= 6) {
-                        $(button).html($('<span>' + id + '</span>'));
-                        $('#limitDialog').modal('show');
+            if (selectedNumArr.includes(parseInt(id))) {
+                var index = selectedNumArr.indexOf(parseInt(id));
+                if (index > -1) {
+                    selectedNumArr.splice(index, 1);
+                }
+            }
+
+            switch (selectedNumArr.length) {
+                case 0 :
+                    if (btnVal.trim().length === 0) {
+                        msg = "Remaining 6/6 Numbers.";
                     } else {
-                        $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
-                        currentArr.push(id);
-                        numBlockMap.set(cardId, currentArr);
+                        msg = "Remaining 5/6 Numbers.";
+                    }
+                    break;
+                case 1 :
+                    if (btnVal.trim().length === 0) {
+                        msg = "Remaining 5/6 Numbers.";
+                    } else {
+                        msg = "Remaining 4/6 Numbers.";
+                    }
+                    break;
+                case 2 :
+                    if (btnVal.trim().length === 0) {
+                        msg = "Remaining 4/6 Numbers.";
+                    } else {
+                        msg = "Remaining 3/6 Numbers.";
+                    }
+                    break;
+                case 3 :
+                    if (btnVal.trim().length === 0) {
+                        msg = "Remaining 3/6 Numbers.";
+                    } else {
+                        msg = "Remaining 2/6 Numbers.";
+                    }
+                    break;
+                case 4 :
+                    if (btnVal.trim().length === 0) {
+                        msg = "Remaining 2/6 Numbers.";
+                    } else {
+                        msg = "Remaining 1/6 Numbers.";
+                    }
+                    break;
+                case 5 :
+                    if (btnVal.trim().length === 0) {
+                        msg = "Remaining 1/6 Numbers.";
+                    } else {
+                        msg = "Remaining 0/6 Numbers.";
+                    }
+                    break;
+                case 6 :
+                    msg = "Remaining 0/6 Numbers.";
+                    break;
+            }
 
-                        if (currentArr.length === 6) {
-                            var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
-                            var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
-                            $('#stake').text(stakeTotal.toFixed(2));
-                        }
+            $('#' + "remainNumCount" + cardId + " " + "span").text(msg);
+
+            if (selectedNumArr.length === 6) {
+                $(button).html($('<span>' + id + '</span>'));
+                $('#limitDialog').modal('show');
+            } else {
+                if (numBlockMap.get(cardId) === undefined) {
+                    numBlockMap.set(cardId, selectedArr);
+                    $(button).find('span').remove();
+                    if (id === btnVal.trim()) {
+                        $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
+                    } else {
+                        $(button).html($('<span>' + id + '</span>'));
                     }
                 } else {
-                    $(button).html($('<span>' + id + '</span>'));
                     var currentArr = numBlockMap.get(cardId);
-                    currentArr.splice(currentArr.indexOf(id), 1);
-                    numBlockMap.set(cardId, currentArr);
 
-                    if (currentArr.length === 5) {
-                        var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
-                        var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
-                        $('#stake').text(stakeTotal.toFixed(2));
+                    $(button).find('span').remove();
+                    if (id === btnVal.trim()) {
+                        if (currentArr.length >= 6) {
+                            $(button).html($('<span>' + id + '</span>'));
+                            $('#limitDialog').modal('show');
+                        } else {
+                            $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
+                            currentArr.push(id);
+                            numBlockMap.set(cardId, currentArr);
+
+                            if (currentArr.length === 6) {
+                                var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                                var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
+                                $('#stake').text(stakeTotal.toFixed(2));
+                            }
+                        }
+                    } else {
+                        $(button).html($('<span>' + id + '</span>'));
+                        var currentArr = numBlockMap.get(cardId);
+                        currentArr.splice(currentArr.indexOf(id), 1);
+                        numBlockMap.set(cardId, currentArr);
+
+                        if (currentArr.length === 5) {
+                            var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
+                            var stakeTotal = parseFloat(stakeVal) - parseFloat("3.50");
+                            $('#stake').text(stakeTotal.toFixed(2));
+                        }
                     }
                 }
             }
         }
 
         function randomClickFunction(cardId, fieldsetId, button) {
-            $('#' + fieldsetId).prop('disabled', true);
+            // $('#' + fieldsetId).prop('disabled', true);
             var randomArr = [];
             while (randomArr.length < 6) {
                 var r1;
@@ -96,6 +169,8 @@
                 }
                 if (randomArr.indexOf(r) === -1) randomArr.push(r1);
             }
+
+            randomDataMap.set('crd' + cardId, randomArr);
 
             for (var i = 1; i <= 56; i++) {
                 if ($('#' + 'crd' + cardId).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
@@ -113,12 +188,16 @@
                 stakeMap.set(cardId, stakeCount + 1);
                 $('#stake').text(stakeTotal.toFixed(2));
             }
+
+            $('#' + "remainNumCount" + "crd" + cardId + " " + "span").text("Remaining 0/6 Numbers.");
         }
 
         function deterministicClickFunction(crdId, fieldsetId, checkbox) {
             if ($(checkbox).prop("checked") == true) {
                 $('#' + fieldsetId).prop('disabled', false);
-                $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', true);
+                $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', false);
+                $('#' + 'crd' + crdId).find('#' + 'deleteBtn' + crdId).prop('disabled', false);
+                $('#' + "remainNumCount" + "crd" + crdId).show();
 
                 var selectedRandomArr = [];
                 for (var i = 1; i <= 56; i++) {
@@ -145,7 +224,9 @@
                 }
             } else {
                 $('#' + fieldsetId).prop('disabled', true);
-                $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', false);
+                $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', true);
+                $('#' + 'crd' + crdId).find('#' + 'deleteBtn' + crdId).prop('disabled', true);
+                $('#' + "remainNumCount" + "crd" + crdId).hide();
 
                 var selectedRandomArr = [];
                 for (var i = 1; i <= 56; i++) {
@@ -200,7 +281,6 @@
         }
 
         $(document).ready(function () {
-
             // SUBMIT FORM
             $("#numberBlockForm").submit(function (event) {
                 // Prevent the form from submitting via the browser.
@@ -208,11 +288,10 @@
                 ajaxPost();
             });
 
-
             function ajaxPost() {
                 // PREPARE FORM DATA
                 var formString = [];
-                for (var y = 1; y < 11; y++) {
+                for (var y = 1; y <= 10; y++) {
                     var selectedData = [];
 
                     for (var i = 1; i <= 56; i++) {
@@ -222,19 +301,27 @@
                         }
                     }
 
+                    var selectionType = "";
+                    if (randomDataMap.get('crd' + y) !== undefined && randomDataMap.get('crd' + y).length > 0 && compareArrays(randomDataMap.get('crd' + y), selectedData)) {
+                        selectionType = "RANDOM";
+                    } else {
+                        selectionType = "DETERMINISTIC";
+                    }
+                    console.log("selectionType : ", selectionType);
                     if (selectedData.length === 6) {
                         if ($('#' + 'deterministic' + y).is(":checked")) {
                             formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
                                 ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
-                                ", \"pickType\" : " + "\"" + $('#' + 'deterministic' + y).val() + "\"" +
-                                ", \"cost\" : " + "\"" + $('#stake').text() + "\"" + "}");
+                                ", \"pickType\" : " + "\"" + selectionType + "\"" +
+                                ", \"cost\" : " + "\"" + STAKEAMT + "\"" + "}");
                         } else {
                             formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
                                 ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
-                                ", \"pickType\" : " + "\"" + $('#' + 'randomBtn' + y).val() + "\"" +
-                                ", \"cost\" : " + "\"" + $('#stake').text() + "\"" + "}");
+                                ", \"pickType\" : " + "\"" + selectionType + "\"" +
+                                ", \"cost\" : " + "\"" + STAKEAMT + "\"" + "}");
                         }
                     }
+
                 }
 
                 var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
@@ -247,11 +334,39 @@
                     dataType: 'text',
                     success: function (result) {
                         console.debug(result);
+                        randomCount = 0;
+                        stakeCount = 0;
+                        selectedArr = [];
+                        numBlockMap = new Map();
+                        randomMap = new Map();
+                        randomDataMap = new Map();
+                        stakeMap = new Map();
+                        $('#stake').text(stakeDefault.toFixed(2));
+                        $(".myCheck").prop("checked", false);
+                        location.reload();
                     },
                     error: function (jqXhr, textStatus, errorThrown) {
                         console.error("ERROR: ", errorThrown);
                     }
                 });
+            }
+        });
+
+        function compareArrays(arr1, arr2) {
+            if (arr1.length !== arr2.length)
+                return false;
+            for (var i = arr1.length; i--;) {
+                if (!arr2.includes(arr1[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        $(window).on('load', function () {
+            for (var y = 1; y <= 10; y++) {
+                $('#' + "randomBtn" + y).prop('disabled', true);
+                $('#' + "deleteBtn" + y).prop('disabled', true);
+                $('#' + "remainNumCount" + "crd" + y).hide();
             }
         });
     </script>
@@ -264,21 +379,16 @@
 
 <div class="container-fluid text-center">
     <form id="numberBlockForm">
-        <div class=" d-flex flex-wrap">
+        <!--                <div class=" d-flex flex-wrap">-->
+        <div class="row">
             <th:block th:each="cardId : ${outerCards}">
-                <div class="card mb-1 mr-1 box-shadow d-sm-block d-md-block d-xl-block" th:id="'crd' + ${cardId}">
-                    <div class="card-header">
-                        <h6 class="my-0 font-weight-normal">Pad <span th:text="${cardId}"></span></h6>
-                    </div>
+                <div class="card mb-1 mr-1 box-shadow media-size"
+                     th:id="'crd' + ${cardId}">
                     <div class="card-body">
-                        <button class="btn btn-primary btn-sm"
-                                th:attr="onclick=|randomClickFunction(${cardId},'fieldset' + '${cardId}', this)|"
-                                th:id="'randomBtn' + ${cardId}" title="Random Select"
-                                type="button" value="RANDOM">
-                            <i aria-hidden="true" class="fa fa-random"></i>
-                        </button>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" name="selectType"
+                            <h6 class="my-0 font-weight-normal">Play <span
+                                    th:text="${cardId}"></span><span>&nbsp;</span></h6>
+                            <input class="form-check-input myCheck" name="selectType"
                                    th:attr="onclick=|deterministicClickFunction(${cardId}, 'fieldset' + '${cardId}', this)|"
                                    th:id="'deterministic' + ${cardId}"
                                    title="Deterministic Select"
@@ -287,19 +397,28 @@
                                 <i aria-hidden="true" class="fa fa-check"></i>
                             </label>
                         </div>
+                        <button class="btn btn-primary btn-sm"
+                                th:attr="onclick=|randomClickFunction(${cardId},'fieldset' + '${cardId}', this)|"
+                                th:id="'randomBtn' + ${cardId}" title="Random Select"
+                                type="button" value="RANDOM">
+                            <i aria-hidden="true" class="fa fa-random"></i>
+                        </button>
                         <button class="btn btn-danger btn-sm"
                                 th:attr="onclick=|deleteClickFunction(${cardId}, 'fieldset' + '${cardId}')|"
+                                th:id="'deleteBtn' + ${cardId}"
                                 title="Remove Select"
                                 type="button">
                             <i aria-hidden="true" class="fa fa-trash-o"></i>
                         </button>
+                        <div th:id="'remainNumCount' + 'crd' + ${cardId}"><span class="text-primary font-italic">Remaining 6/6 Numbers</span>
+                        </div>
                         <hr>
                         <fieldset disabled th:id="'fieldset' + ${cardId}">
                             <div class="container-fluid" th:id="'numContainer' + ${cardId}">
                                 <div class="row">
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}" th:if="${number} <= 7">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -312,7 +431,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 7 and ${number} <= 14">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -325,7 +444,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 14 and ${number} <= 21">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -338,7 +457,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 21 and ${number} <= 28">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -351,7 +470,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 28 and ${number} <= 35">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -364,7 +483,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 35 and ${number} <= 42">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -377,7 +496,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 42 and ${number} <= 49">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -390,7 +509,7 @@
                                     <div class="btn-group">
                                         <th:block th:each="number : ${padNumbers}"
                                                   th:if="${number} > 49 and ${number} <= 56">
-                                            <button class="btn btn-outline-primary btn-sm"
+                                            <button class="btn btn-outline-danger btn-sm"
                                                     th:attr="onclick=|clickFunction('crd' + '${cardId}','${number}', this)|"
                                                     th:id="${number}"
                                                     type="button">
@@ -405,25 +524,29 @@
                 </div>
             </th:block>
         </div>
+        <!--                </div>-->
         <footer class="pt-0 my-md-0 pt-md-0 border-top">
-            <div class="row">
-                <div class="col-12 col-md">
+            <div class="row mt-3">
+                <div class="col-10 col-md">
                     <h3>STAKE : $<span id="stake" th:field="*{cost}">0.00</span></h3>
+                </div>
+                <div class="col-2 col-md">
+                    <button class="btn btn-primary btn-lg rounded-pill float-right"
+                            type="submit">
+                        <i aria-hidden="true" class="fa fa-play"></i>
+                        Play!
+                    </button>
                 </div>
             </div>
         </footer>
 
         <hr>
-        <button class="btn btn-success btn-sm float-right"
-                type="submit">
-            <i aria-hidden="true" class="fa fa-save"></i>
-            Submit
-        </button>
+
     </form>
-    <button class="btn btn-primary btn-sm float-right" th:onclick="|window.location.href='/loadData'|" type="button">
-        <i aria-hidden="true" class="fa fa-tasks"></i>
-        Load Data
-    </button>
+    <!--    <button class="btn btn-primary btn-sm float-right" th:onclick="|window.location.href='/loadData'|" type="button">-->
+    <!--        <i aria-hidden="true" class="fa fa-tasks"></i>-->
+    <!--        Load Data-->
+    <!--    </button>-->
 
     <!-- Load Data Table -->
     <div class="table-responsive">
