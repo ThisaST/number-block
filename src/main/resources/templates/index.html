@@ -159,15 +159,27 @@
         function randomClickFunction(cardId, fieldsetId, button) {
             // $('#' + fieldsetId).prop('disabled', true);
             var randomArr = [];
-            while (randomArr.length < 6) {
-                var r1;
-                var r = Math.floor(Math.random() * 56) + 1;
-                if (r <= 9) {
-                    r1 = '0' + r;
+            var randomNumber;
+
+            while (randomArr.length < 7) {
+                randomNumber = getRandomNumber();
+                if (randomArr.length === 6) {
+                    break;
+                } else if (randomArr.length === 0) {
+                    if (randomNumber <= 9) {
+                        randomArr.push('0' + randomNumber);
+                    } else {
+                        randomArr.push(randomNumber);
+                    }
                 } else {
-                    r1 = r;
+                    if (!randomArr.includes(randomNumber)) {
+                        if (randomNumber <= 9) {
+                            randomArr.push('0' + randomNumber);
+                        } else {
+                            randomArr.push(randomNumber);
+                        }
+                    }
                 }
-                if (randomArr.indexOf(r) === -1) randomArr.push(r1);
             }
 
             randomDataMap.set('crd' + cardId, randomArr);
@@ -351,6 +363,25 @@
                 });
             }
         });
+
+        function getRandomNumber() {
+            var resultVal;
+            $.ajax({
+                type: "GET",
+                contentType: "application/json",
+                url: "https://www.random.org/integers/?num=1&min=1&max=56&col=1&base=10&format=plain&rnd=new",
+                dataType: 'text',
+                async: false,
+                success: function (result) {
+                    resultVal = result.trim();
+                },
+                error: function (jqXhr, textStatus, errorThrown) {
+                    console.error("ERROR: ", errorThrown);
+                }
+            });
+
+            return resultVal;
+        }
 
         function compareArrays(arr1, arr2) {
             if (arr1.length !== arr2.length)
