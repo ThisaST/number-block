@@ -1,7 +1,10 @@
 package com.arbiter.numberblock.controller;
 
+import com.arbiter.numberblock.modal.Draws;
+import com.arbiter.numberblock.modal.DrawsJsonMapper;
 import com.arbiter.numberblock.modal.NumberBlock;
 import com.arbiter.numberblock.modal.NumberBlockJsonMapper;
+import com.arbiter.numberblock.service.DrawsService;
 import com.arbiter.numberblock.service.NumberBlockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,9 +28,11 @@ import java.util.Date;
 public class NumberBlockController {
 
     private final NumberBlockService numberBlockService;
+    private final DrawsService drawsService;
 
-    public NumberBlockController(NumberBlockService numberBlockService) {
+    public NumberBlockController(NumberBlockService numberBlockService, DrawsService drawsService) {
         this.numberBlockService = numberBlockService;
+        this.drawsService = drawsService;
     }
 
     @RequestMapping(value = {"/", "/index", "/index.html",})
@@ -64,6 +69,27 @@ public class NumberBlockController {
         return "Success";
     }
 
+    @RequestMapping(value = {"/saveDraws", "/loadData/saveDraws"}, method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public String saveDrawsData(Model model, @RequestBody DrawsJsonMapper drawsJsonMapper) {
+        indexData(model);
+        for (int i = 0; i < drawsJsonMapper.getDrawsList().size(); i++) {
+            Date date = drawsJsonMapper.getDrawsList().get(i).getDate();
+            String numberCombination = drawsJsonMapper.getDrawsList().get(i).getNumberCombination();
+
+            log.info("date {}", date);
+            log.info("numberCombination {}", numberCombination);
+
+            Draws draws = new Draws();
+            draws.setDate(date);
+            draws.setNumberCombination(numberCombination);
+
+//          Save Data
+            drawsService.save(draws);
+        }
+        return "Success";
+    }
+
     private void indexData(Model model) {
         ArrayList<Integer> outerCards = new ArrayList<>();
         ArrayList<String> padNumbers = new ArrayList<>();
@@ -87,5 +113,6 @@ public class NumberBlockController {
         model.addAttribute("outerCards", outerCards);
         model.addAttribute("padNumbers", padNumbers);
         model.addAttribute("numberBlocks", numberBlockService.findAll());
+        model.addAttribute("winningNumber", drawsService.findTop1ByOrderByIdDesc());
     }
 }

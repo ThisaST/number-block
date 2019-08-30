@@ -28,6 +28,7 @@
     <script crossorigin="anonymous"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
     <script>
         var randomCount = 0;
         var stakeCount = 0;
@@ -118,6 +119,10 @@
                     $(button).find('span').remove();
                     if (id === btnVal.trim()) {
                         $(button).html($('<i/>', {class: 'fa fa-times fa-lg'}));
+                        var currentDraw = "Current Draw : <span class='numberCircle'>" + id + "</span>" + '-';
+
+                        $('#currentDraw').empty();
+                        $('#currentDraw').append(currentDraw);
                     } else {
                         $(button).html($('<span>' + id + '</span>'));
                     }
@@ -139,12 +144,26 @@
                                 var stakeTotal = parseFloat(stakeVal) + parseFloat("3.50");
                                 $('#stake').text(stakeTotal.toFixed(2));
                             }
+
+                            var currentDraw = "Current Draw : ";
+                            for (var k = 0; k < currentArr.length; k++) {
+                                currentDraw += "<span class='numberCircle'>" + (currentArr[k]) + "</span>" + ((k !== 5) ? '-' : '');
+                            }
+                            $('#currentDraw').empty();
+                            $('#currentDraw').append(currentDraw);
                         }
                     } else {
                         $(button).html($('<span>' + id + '</span>'));
                         var currentArr = numBlockMap.get(cardId);
                         currentArr.splice(currentArr.indexOf(id), 1);
                         numBlockMap.set(cardId, currentArr);
+
+                        var currentDraw = "Current Draw : ";
+                        for (var k = 0; k < currentArr.length; k++) {
+                            currentDraw += "<span class='numberCircle'>" + (currentArr[k]) + "</span>" + ((k !== 5) ? '-' : '');
+                        }
+                        $('#currentDraw').empty();
+                        $('#currentDraw').append(currentDraw);
 
                         if (currentArr.length === 5) {
                             var stakeVal = parseFloat($("#stake").text().trim()).toFixed(2);
@@ -235,6 +254,7 @@
                     randomMap.set(crdId, undefined);
                 }
             } else {
+                numBlockMap.set('crd' + crdId, []);
                 $('#' + fieldsetId).prop('disabled', true);
                 $('#' + 'crd' + crdId).find('#' + 'randomBtn' + crdId).prop('disabled', true);
                 $('#' + 'crd' + crdId).find('#' + 'deleteBtn' + crdId).prop('disabled', true);
@@ -293,76 +313,105 @@
         }
 
         $(document).ready(function () {
-            // SUBMIT FORM
-            $("#numberBlockForm").submit(function (event) {
-                // Prevent the form from submitting via the browser.
-                event.preventDefault();
-                ajaxPost();
-            });
-
-            function ajaxPost() {
-                // PREPARE FORM DATA
-                var formString = [];
-                for (var y = 1; y <= 10; y++) {
-                    var selectedData = [];
-
-                    for (var i = 1; i <= 56; i++) {
-                        if ($('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
-                            $('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
-                            selectedData.push((i <= 9 ? '0' + i : i));
-                        }
-                    }
-
-                    var selectionType = "";
-                    if (randomDataMap.get('crd' + y) !== undefined && randomDataMap.get('crd' + y).length > 0 && compareArrays(randomDataMap.get('crd' + y), selectedData)) {
-                        selectionType = "RANDOM";
-                    } else {
-                        selectionType = "DETERMINISTIC";
-                    }
-                    console.log("selectionType : ", selectionType);
-                    if (selectedData.length === 6) {
-                        if ($('#' + 'deterministic' + y).is(":checked")) {
-                            formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
-                                ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
-                                ", \"pickType\" : " + "\"" + selectionType + "\"" +
-                                ", \"cost\" : " + "\"" + STAKEAMT + "\"" + "}");
-                        } else {
-                            formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
-                                ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
-                                ", \"pickType\" : " + "\"" + selectionType + "\"" +
-                                ", \"cost\" : " + "\"" + STAKEAMT + "\"" + "}");
-                        }
-                    }
-
-                }
-
-                var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
-                // DO POST
-                $.ajax({
-                    type: "POST",
-                    contentType: "application/json",
-                    url: window.location.href + "/saveNumberBlock",
-                    data: formData,
-                    dataType: 'text',
-                    success: function (result) {
-                        console.debug(result);
-                        randomCount = 0;
-                        stakeCount = 0;
-                        selectedArr = [];
-                        numBlockMap = new Map();
-                        randomMap = new Map();
-                        randomDataMap = new Map();
-                        stakeMap = new Map();
-                        $('#stake').text(stakeDefault.toFixed(2));
-                        $(".myCheck").prop("checked", false);
-                        location.reload();
-                    },
-                    error: function (jqXhr, textStatus, errorThrown) {
-                        console.error("ERROR: ", errorThrown);
-                    }
+                // SUBMIT FORM
+                $("#numberBlockForm").submit(function (event) {
+                    // Prevent the form from submitting via the browser.
+                    event.preventDefault();
+                    ajaxPost();
                 });
+
+                function ajaxPost() {
+                    // PREPARE FORM DATA
+                    var formString = [];
+                    var drawsString = [];
+                    for (var y = 1; y <= 10; y++) {
+                        var selectedData = [];
+
+                        for (var i = 1; i <= 56; i++) {
+                            if ($('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                                $('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
+                                selectedData.push((i <= 9 ? '0' + i : i));
+                            }
+                        }
+
+                        var selectionType = "";
+                        if (randomDataMap.get('crd' + y) !== undefined && randomDataMap.get('crd' + y).length > 0 && compareArrays(randomDataMap.get('crd' + y), selectedData)) {
+                            selectionType = "RANDOM";
+                        } else {
+                            selectionType = "DETERMINISTIC";
+                        }
+
+                        if (selectedData.length === 6) {
+                            if (selectionType === "RANDOM") {
+                                drawsString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                                    ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" + "}");
+                            } else {
+                                formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                                    ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
+                                    ", \"pickType\" : " + "\"" + selectionType + "\"" +
+                                    ", \"cost\" : " + "\"" + STAKEAMT + "\"" + "}");
+                            }
+                        }
+                    }
+
+                    console.log("formString : ", formString);
+                    console.log("drawsString : ", drawsString);
+                    if (drawsString.length > 0) {
+                        var drawsData = "{ \"drawsList\" : " + "[" + drawsString.toString() + "]" + "}";
+                        // DO POST Draws Table
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: window.location.href + "/saveDraws",
+                            data: drawsData,
+                            dataType: 'text',
+                            success: function (result) {
+                                console.debug(result);
+                                randomCount = 0;
+                                stakeCount = 0;
+                                selectedArr = [];
+                                numBlockMap = new Map();
+                                randomMap = new Map();
+                                randomDataMap = new Map();
+                                stakeMap = new Map();
+                                $('#stake').text(stakeDefault.toFixed(2));
+                                $(".myCheck").prop("checked", false);
+                                location.reload();
+                            },
+                            error: function (jqXhr, textStatus, errorThrown) {
+                                console.error("ERROR: ", errorThrown);
+                            }
+                        });
+                    } else if (formString.length > 0) {
+                        var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
+                        // DO POST Number Block Table
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: window.location.href + "/saveNumberBlock",
+                            data: formData,
+                            dataType: 'text',
+                            success: function (result) {
+                                console.debug(result);
+                                randomCount = 0;
+                                stakeCount = 0;
+                                selectedArr = [];
+                                numBlockMap = new Map();
+                                randomMap = new Map();
+                                randomDataMap = new Map();
+                                stakeMap = new Map();
+                                $('#stake').text(stakeDefault.toFixed(2));
+                                $(".myCheck").prop("checked", false);
+                                location.reload();
+                            },
+                            error: function (jqXhr, textStatus, errorThrown) {
+                                console.error("ERROR: ", errorThrown);
+                            }
+                        });
+                    }
+                }
             }
-        });
+        );
 
         function getRandomNumber() {
             var resultVal;
@@ -384,16 +433,28 @@
         }
 
         function compareArrays(arr1, arr2) {
-            if (arr1.length !== arr2.length)
+            var result1 = arr1.map(function (x) {
+                return parseInt(x, 10);
+            });
+
+            var result2 = arr2.map(function (x) {
+                return parseInt(x, 10);
+            });
+
+            console.log("result1 : ", result1);
+            console.log("result2 : ", result2);
+
+            if (result1.length !== result2.length)
                 return false;
-            for (var i = arr1.length; i--;) {
-                if (!arr2.includes(arr1[i]))
+            for (var i = result1.length; i--;) {
+                if (!result2.includes(result1[i]))
                     return false;
             }
             return true;
         }
 
         $(window).on('load', function () {
+            $('#currentDraw').append("Current Draw : <span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>");
             for (var y = 1; y <= 10; y++) {
                 $('#' + "randomBtn" + y).prop('disabled', true);
                 $('#' + "deleteBtn" + y).prop('disabled', true);
@@ -406,6 +467,11 @@
 
 <div class="pricing-header px-1 py-1 pt-md-2 pb-md-1 mx-auto text-center">
     <h1>Bit Coin Lottery</h1>
+</div>
+
+<div class="pricing-header px-1 py-1 pt-md-2 pb-md-1 mx-auto text-center">
+    <h3 class="font-weight-bold text-danger font-italic">Last Winning Number : <span
+            th:text="${winningNumber}"></span><span>&nbsp</span></h3>
 </div>
 
 <div class="container-fluid text-center">
@@ -570,6 +636,12 @@
                 </div>
             </div>
         </footer>
+
+        <hr>
+
+        <div class="pricing-header px-1 py-1 pt-md-2 pb-md-1 mx-auto text-center">
+            <h3 class="font-weight-bold text-primary font-italic" id="currentDraw"></h3>
+        </div>
 
         <hr>
 
