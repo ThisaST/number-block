@@ -1,9 +1,6 @@
 package com.arbiter.numberblock.modal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,6 +13,8 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 
 @Entity
 @Table(name = "draws")
@@ -30,5 +29,8 @@ public class Draws {
 
     @Column(name = "number_combination", nullable = false)
     private String numberCombination;
+
+    @Column(name = "game_serial")
+    private String gameSerial;
 
 }

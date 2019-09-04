@@ -4,7 +4,9 @@ import com.arbiter.numberblock.modal.NumberBlock;
 import com.arbiter.numberblock.repository.NumberBlockRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,15 +22,19 @@ public class NumberBlockServiceImpl implements NumberBlockService {
         this.numberBlockRepository = numberBlockRepository;
     }
 
+    @Transactional
     @Override
     public <S, T> S save(T object) {
         NumberBlock numberBlock = numberBlockRepository.save((NumberBlock) object);
         return (S) numberBlock;
     }
 
+    @Transactional
     @Override
-    public <T, K> T update(K object) {
-        return null;
+    public <S, T> S update(T object) {
+        NumberBlock numberBlock = numberBlockRepository.save((NumberBlock) object);
+        log.info("Return numberBlock : {}", numberBlock.toString());
+        return (S) numberBlock;
     }
 
     @Override
@@ -39,5 +45,10 @@ public class NumberBlockServiceImpl implements NumberBlockService {
     @Override
     public <T, K> T findById(K id) {
         return null;
+    }
+
+    @Override
+    public List<NumberBlock> findAllByDate(Date fromDate, Date toDate) {
+        return numberBlockRepository.findAllByDate(fromDate, toDate);
     }
 }

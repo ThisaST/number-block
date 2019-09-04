@@ -10,14 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created By Praneeth On 08/07/2019 for numberblock v1.0
@@ -56,12 +55,16 @@ public class NumberBlockController {
             String numberCombination = numberBlockJsonMapper.getNumberBlockList().get(i).getNumberCombination();
             String pickType = numberBlockJsonMapper.getNumberBlockList().get(i).getPickType();
             BigDecimal cost = numberBlockJsonMapper.getNumberBlockList().get(i).getCost();
+            Integer hits = numberBlockJsonMapper.getNumberBlockList().get(i).getHits();
+            Integer checked = numberBlockJsonMapper.getNumberBlockList().get(i).getChecked();
 
             NumberBlock numberBlock = new NumberBlock();
             numberBlock.setDate(date);
             numberBlock.setNumberCombination(numberCombination);
             numberBlock.setPickType(pickType);
             numberBlock.setCost(cost);
+            numberBlock.setHits(hits);
+            numberBlock.setChecked(checked);
 
 //          Save Data
             numberBlockService.save(numberBlock);
@@ -69,10 +72,21 @@ public class NumberBlockController {
         return "Success";
     }
 
+    @PostMapping(value = {"/updateNumberBlock", "/loadData/updateNumberBlock"}, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public String updateData(Model model, NumberBlock numberBlock) {
+        indexData(model);
+        // Update Data
+        log.info("numberBlock 111111111: {}", numberBlock.toString());
+        numberBlockService.update(numberBlock);
+        return "Success";
+    }
+
     @RequestMapping(value = {"/saveDraws", "/loadData/saveDraws"}, method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String saveDrawsData(Model model, @RequestBody DrawsJsonMapper drawsJsonMapper) {
+    public Draws saveDrawsData(Model model, @RequestBody DrawsJsonMapper drawsJsonMapper) {
         indexData(model);
+        Draws resultDraws = new Draws();
         for (int i = 0; i < drawsJsonMapper.getDrawsList().size(); i++) {
             Date date = drawsJsonMapper.getDrawsList().get(i).getDate();
             String numberCombination = drawsJsonMapper.getDrawsList().get(i).getNumberCombination();
@@ -85,9 +99,26 @@ public class NumberBlockController {
             draws.setNumberCombination(numberCombination);
 
 //          Save Data
-            drawsService.save(draws);
+            resultDraws = drawsService.save(draws);
         }
-        return "Success";
+
+        return resultDraws;
+    }
+
+    @PostMapping(value = {"/updateDraws", "/loadData/updateDraws"}, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public String updateDrawsData(Model model, Draws draws) {
+        indexData(model);
+        // Save Data
+        drawsService.save(draws);
+        return "success";
+    }
+
+    @GetMapping(value = {"/loadCompareList", "/loadData/loadCompareList"})
+    @ResponseBody
+    public List<NumberBlock> loadCompareData() {
+        List<NumberBlock> resultList = numberBlockService.findAllByDate(java.sql.Date.valueOf(LocalDate.now()), java.sql.Date.valueOf(LocalDate.now().minusDays(7)));
+        return resultList;
     }
 
     private void indexData(Model model) {
@@ -114,5 +145,6 @@ public class NumberBlockController {
         model.addAttribute("padNumbers", padNumbers);
         model.addAttribute("numberBlocks", numberBlockService.findAll());
         model.addAttribute("winningNumber", drawsService.findTop1ByOrderByIdDesc());
+        model.addAttribute("numberBlockDraws", drawsService.findAllNumberBlockDraws());
     }
 }

@@ -1,5 +1,8 @@
 package com.arbiter.numberblock.service;
 
+import com.arbiter.numberblock.modal.NumberBlock;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -10,10 +13,12 @@ public interface NumberBlockService {
 
     <S, T> S save(T object);
 
-    <T, K> T update(K object);
+    <S, T> S update(T object);
 
     <T> List<T> findAll();
 
     <T, K> T findById(K id);
+
+    List<NumberBlock> findAllByDate(Date fromDate, Date toDate);
 
 }

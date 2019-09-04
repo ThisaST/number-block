@@ -1,5 +1,7 @@
 package com.arbiter.numberblock.service;
 
+import com.arbiter.numberblock.modal.NumberBlockDrawsJsonMapper;
+
 import java.util.List;
 
 /**
@@ -17,4 +19,6 @@ public interface DrawsService {
     <T, K> T findById(K id);
 
     String findTop1ByOrderByIdDesc();
+
+    List<NumberBlockDrawsJsonMapper> findAllNumberBlockDraws();
 }

@@ -1,9 +1,6 @@
 package com.arbiter.numberblock.modal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -17,6 +14,8 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 
 @Entity
 @Table(name = "number_block")
@@ -37,4 +36,18 @@ public class NumberBlock {
 
     @Column(name = "cost", nullable = false, precision = 12, scale = 2)
     private BigDecimal cost;
+
+    @Column(name = "hits", nullable = false)
+    private Integer hits;
+
+    @Column(name = "checked", nullable = false)
+    private Integer checked;
+
+    @Column(name = "drawid")
+    private Integer drawId;
+
+
+    public NumberBlock(String numberCombination) {
+        this.numberCombination = numberCombination;
+    }
 }

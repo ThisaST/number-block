@@ -177,6 +177,7 @@
 
         function randomClickFunction(cardId, fieldsetId, button) {
             // $('#' + fieldsetId).prop('disabled', true);
+            $("body").addClass("loading");
             var randomArr = [];
             var randomNumber;
 
@@ -221,6 +222,7 @@
             }
 
             $('#' + "remainNumCount" + "crd" + cardId + " " + "span").text("Remaining 0/6 Numbers.");
+            $("body").removeClass("loading");
         }
 
         function deterministicClickFunction(crdId, fieldsetId, checkbox) {
@@ -312,107 +314,6 @@
             }
         }
 
-        $(document).ready(function () {
-                // SUBMIT FORM
-                $("#numberBlockForm").submit(function (event) {
-                    // Prevent the form from submitting via the browser.
-                    event.preventDefault();
-                    ajaxPost();
-                });
-
-                function ajaxPost() {
-                    // PREPARE FORM DATA
-                    var formString = [];
-                    var drawsString = [];
-                    for (var y = 1; y <= 10; y++) {
-                        var selectedData = [];
-
-                        for (var i = 1; i <= 56; i++) {
-                            if ($('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
-                                $('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
-                                selectedData.push((i <= 9 ? '0' + i : i));
-                            }
-                        }
-
-                        var selectionType = "";
-                        if (randomDataMap.get('crd' + y) !== undefined && randomDataMap.get('crd' + y).length > 0 && compareArrays(randomDataMap.get('crd' + y), selectedData)) {
-                            selectionType = "RANDOM";
-                        } else {
-                            selectionType = "DETERMINISTIC";
-                        }
-
-                        if (selectedData.length === 6) {
-                            if (selectionType === "RANDOM") {
-                                drawsString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
-                                    ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" + "}");
-                            } else {
-                                formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
-                                    ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
-                                    ", \"pickType\" : " + "\"" + selectionType + "\"" +
-                                    ", \"cost\" : " + "\"" + STAKEAMT + "\"" + "}");
-                            }
-                        }
-                    }
-
-                    console.log("formString : ", formString);
-                    console.log("drawsString : ", drawsString);
-                    if (drawsString.length > 0) {
-                        var drawsData = "{ \"drawsList\" : " + "[" + drawsString.toString() + "]" + "}";
-                        // DO POST Draws Table
-                        $.ajax({
-                            type: "POST",
-                            contentType: "application/json",
-                            url: window.location.href + "/saveDraws",
-                            data: drawsData,
-                            dataType: 'text',
-                            success: function (result) {
-                                console.debug(result);
-                                randomCount = 0;
-                                stakeCount = 0;
-                                selectedArr = [];
-                                numBlockMap = new Map();
-                                randomMap = new Map();
-                                randomDataMap = new Map();
-                                stakeMap = new Map();
-                                $('#stake').text(stakeDefault.toFixed(2));
-                                $(".myCheck").prop("checked", false);
-                                location.reload();
-                            },
-                            error: function (jqXhr, textStatus, errorThrown) {
-                                console.error("ERROR: ", errorThrown);
-                            }
-                        });
-                    } else if (formString.length > 0) {
-                        var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
-                        // DO POST Number Block Table
-                        $.ajax({
-                            type: "POST",
-                            contentType: "application/json",
-                            url: window.location.href + "/saveNumberBlock",
-                            data: formData,
-                            dataType: 'text',
-                            success: function (result) {
-                                console.debug(result);
-                                randomCount = 0;
-                                stakeCount = 0;
-                                selectedArr = [];
-                                numBlockMap = new Map();
-                                randomMap = new Map();
-                                randomDataMap = new Map();
-                                stakeMap = new Map();
-                                $('#stake').text(stakeDefault.toFixed(2));
-                                $(".myCheck").prop("checked", false);
-                                location.reload();
-                            },
-                            error: function (jqXhr, textStatus, errorThrown) {
-                                console.error("ERROR: ", errorThrown);
-                            }
-                        });
-                    }
-                }
-            }
-        );
-
         function getRandomNumber() {
             var resultVal;
             $.ajax({
@@ -453,6 +354,143 @@
             return true;
         }
 
+        function getHitsCount(arr1, arr2) {
+            var hits = 0;
+            var result1 = arr1.map(function (x) {
+                return parseInt(x, 10);
+            });
+
+            var result2 = arr2.map(function (x) {
+                return parseInt(x, 10);
+            });
+
+            for (var i = result1.length; i--;) {
+                if (result2.includes(result1[i]))
+                    hits++;
+            }
+            return hits;
+        }
+
+        function pad(num, size) {
+            var s = num + "";
+            while (s.length < size) s = "0" + s;
+            return s;
+        }
+
+        function reloadPage() {
+            window.location.reload();
+        }
+
+        function onDrawButtonClick() {
+            $("body").addClass("loading");
+            var randomArr = [];
+            var drawsString = [];
+            var randomNumber;
+
+            // -- Get Random 6 Numbers --
+            while (randomArr.length < 7) {
+                randomNumber = getRandomNumber();
+                if (randomArr.length === 6) {
+                    break;
+                } else if (randomArr.length === 0) {
+                    if (randomNumber <= 9) {
+                        randomArr.push('0' + randomNumber);
+                    } else {
+                        randomArr.push(randomNumber);
+                    }
+                } else {
+                    if (!randomArr.includes(randomNumber)) {
+                        if (randomNumber <= 9) {
+                            randomArr.push('0' + randomNumber);
+                        } else {
+                            randomArr.push(randomNumber);
+                        }
+                    }
+                }
+            }
+
+            drawsString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                ", \"numberCombination\" : " + "\"" + randomArr.join("-") + "\"" +
+                ", \"gameSerial\" : " + "\"" + '' + "\""
+                + "}");
+            var drawsData = "{ \"drawsList\" : " + "[" + drawsString.toString() + "]" + "}";
+
+            // -- Save Data to Draws Table --
+            var savedDrawId;
+            $.ajax({
+                async: false,
+                type: "POST",
+                contentType: "application/json",
+                url: window.location.href + "/saveDraws",
+                data: drawsData,
+                dataType: 'text',
+                success: function (result) {
+                    var draw = JSON.parse(result);
+                    savedDrawId = JSON.parse(result).id;
+                    const drawPrefix = "XU000001N";
+                    var drawDate = new Date().getFullYear().toString().substr(-3);
+                    var drawSerial = drawPrefix + drawDate + pad(savedDrawId, 8);
+                    draw.gameSerial = drawSerial;
+                    draw.date = new Date(JSON.parse(result).date);
+                    // -- Update Draws Table with Draw Serial --
+                    $.ajax({
+                        async: false,
+                        type: "POST",
+                        url: window.location.href + "/updateDraws",
+                        data: draw,
+                        dataType: 'text',
+                        success: function (result) {
+                            // -- Get Compare Data List From Number Block Table --
+                            $.ajax({
+                                type: "GET",
+                                url: window.location.href + "/loadCompareList",
+                                dataType: 'json',
+                                async: false,
+                                success: function (data) {
+                                    for (var i = 0; i < data.length; i++) {
+                                        var hitCount = getHitsCount((data[i].numberCombination.split("-")), randomArr);
+                                        data[i].date = new Date(data[i].date);
+                                        data[i].hits = hitCount;
+                                        data[i].checked = 1;
+                                        data[i].drawId = savedDrawId;
+
+                                        // -- Update Number Block Table --
+                                        $.ajax({
+                                            async: false,
+                                            type: "POST",
+                                            url: window.location.href + "/updateNumberBlock",
+                                            data: data[i],
+                                            dataType: 'text',
+                                            success: function (result) {
+                                                console.debug("Success updateNumberBlock");
+                                            },
+                                            error: function (jqXhr, textStatus, errorThrown) {
+                                                console.error("ERROR: ", errorThrown);
+                                            }
+                                        });
+                                    }
+
+                                    reloadPage();
+                                    $("body").removeClass("loading");
+                                },
+                                error: function (jqXhr, textStatus, errorThrown) {
+                                    console.error("ERROR: ", errorThrown);
+                                }
+                            });
+                        },
+                        error: function (jqXhr, textStatus, errorThrown) {
+                            console.error("ERROR: ", errorThrown);
+                        }
+                    });
+                },
+                error: function (jqXhr, textStatus, errorThrown) {
+                    console.error("ERROR: ", errorThrown);
+                }
+            });
+
+
+        }
+
         $(window).on('load', function () {
             $('#currentDraw').append("Current Draw : <span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>-<span class='numberCircle'>00</span>");
             for (var y = 1; y <= 10; y++) {
@@ -461,6 +499,113 @@
                 $('#' + "remainNumCount" + "crd" + y).hide();
             }
         });
+
+        $(document).ready(function () {
+            // SUBMIT FORM
+            $("#numberBlockForm").submit(function (event) {
+                // Prevent the form from submitting via the browser.
+                event.preventDefault();
+                ajaxPost();
+            });
+
+            function ajaxPost() {
+                // PREPARE FORM DATA
+                var formString = [];
+                var drawsString = [];
+                for (var y = 1; y <= 10; y++) {
+                    var selectedData = [];
+
+                    for (var i = 1; i <= 56; i++) {
+                        if ($('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).text().trim() === "") {
+                            $('#' + 'crd' + y).find('#' + (i <= 9 ? '0' + i : i)).html($('<span>' + (i <= 9 ? '0' + i : i) + '</span>'));
+                            selectedData.push((i <= 9 ? '0' + i : i));
+                        }
+                    }
+
+                    var selectionType = "";
+                    if (randomDataMap.get('crd' + y) !== undefined && randomDataMap.get('crd' + y).length > 0 && compareArrays(randomDataMap.get('crd' + y), selectedData)) {
+                        selectionType = "RANDOM";
+                    } else {
+                        selectionType = "DETERMINISTIC";
+                    }
+
+                    if (selectedData.length === 6) {
+                        if (selectionType === "RANDOM") {
+                            drawsString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                                ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" + "}");
+                        } else {
+                            formString.push("{ \"date\" : " + "\"" + new Date().toISOString() + "\"" +
+                                ", \"numberCombination\" : " + "\"" + selectedData.join("-") + "\"" +
+                                ", \"pickType\" : " + "\"" + selectionType + "\"" +
+                                ", \"cost\" : " + "\"" + STAKEAMT + "\"" +
+                                ", \"hits\" : " + "\"" + 0 + "\"" +
+                                ", \"checked\" : " + "\"" + 0 + "\"" + "}");
+                        }
+                    }
+                }
+
+                // console.log("formString : ", formString);
+                // console.log("drawsString : ", drawsString);
+                if (drawsString.length > 0) {
+                    var drawsData = "{ \"drawsList\" : " + "[" + drawsString.toString() + "]" + "}";
+                    // DO POST Draws Table
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: window.location.href + "/saveDraws",
+                        data: drawsData,
+                        dataType: 'text',
+                        success: function (result) {
+                            console.debug(result);
+                            randomCount = 0;
+                            stakeCount = 0;
+                            selectedArr = [];
+                            numBlockMap = new Map();
+                            randomMap = new Map();
+                            randomDataMap = new Map();
+                            stakeMap = new Map();
+                            $('#stake').text(stakeDefault.toFixed(2));
+                            $(".myCheck").prop("checked", false);
+                            location.reload();
+                        },
+                        error: function (jqXhr, textStatus, errorThrown) {
+                            console.error("ERROR: ", errorThrown);
+                        }
+                    });
+                } else if (formString.length > 0) {
+                    var formData = "{ \"numberBlockList\" : " + "[" + formString.toString() + "]" + "}";
+                    // DO POST Number Block Table
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: window.location.href + "/saveNumberBlock",
+                        data: formData,
+                        dataType: 'text',
+                        success: function (result) {
+                            console.debug(result);
+                            randomCount = 0;
+                            stakeCount = 0;
+                            selectedArr = [];
+                            numBlockMap = new Map();
+                            randomMap = new Map();
+                            randomDataMap = new Map();
+                            stakeMap = new Map();
+                            $('#stake').text(stakeDefault.toFixed(2));
+                            $(".myCheck").prop("checked", false);
+                            location.reload();
+                        },
+                        error: function (jqXhr, textStatus, errorThrown) {
+                            console.error("ERROR: ", errorThrown);
+                        }
+                    });
+                }
+            }
+
+            $("#drawButton").click(function () {
+                onDrawButtonClick();
+            });
+        });
+
     </script>
 </head>
 <body>
@@ -470,7 +615,7 @@
 </div>
 
 <div class="pricing-header px-1 py-1 pt-md-2 pb-md-1 mx-auto text-center">
-    <h3 class="font-weight-bold text-danger font-italic">Last Winning Number : <span
+    <h3 class="font-weight-bold text-danger font-italic">Last Winner : <span
             th:text="${winningNumber}"></span><span>&nbsp</span></h3>
 </div>
 
@@ -628,10 +773,16 @@
                     <h3>STAKE : $<span id="stake" th:field="*{cost}">0.00</span></h3>
                 </div>
                 <div class="col-2 col-md">
-                    <button class="btn btn-primary btn-lg rounded-pill float-right"
+                    <button class="btn btn-primary btn-lg rounded-pill float-right" id="playButton"
                             type="submit">
                         <i aria-hidden="true" class="fa fa-play"></i>
                         Play!
+                    </button>
+                    <button class="btn btn-success btn-lg rounded-pill float-right" id="drawButton"
+
+                            type="submit">
+                        <i aria-hidden="true" class="fa fa-play"></i>
+                        Draw!
                     </button>
                 </div>
             </div>
@@ -677,6 +828,34 @@
         </table>
     </div>
 
+    <!-- Load Data Table Number Block Draws-->
+    <div class="table-responsive">
+        <table class="table table-sm table-hover table-striped table-bordered">
+            <thead>
+            <tr>
+                <th scope="col-auto">ID</th>
+                <th scope="col-auto">Date</th>
+                <th scope="col-auto">Game</th>
+                <th scope="col-auto">Picked</th>
+                <th scope="col-auto">Winner</th>
+                <th scope="col-auto">Hits</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="numBlockDraw : ${numberBlockDraws}">
+                <tr>
+                    <td><span th:text="${numBlockDraw.id}"></span></td>
+                    <td><span th:text="${numBlockDraw.date}"></span></td>
+                    <td><span th:text="${numBlockDraw.game}"></span></td>
+                    <td><span th:text="${numBlockDraw.picked}"></span></td>
+                    <td><span th:text="${numBlockDraw.winner}"></span></td>
+                    <td><span th:text="${numBlockDraw.hits}"></span></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
     <!-- Modal -->
     <div aria-hidden="true" aria-labelledby="dialogTitle" class="modal fade" id="limitDialog" role="dialog"
          tabindex="-1">
@@ -694,6 +873,8 @@
             </div>
         </div>
     </div>
+
+    <div aria-hidden="true" class="modal loadModal"><!-- Place at bottom of page --></div>
 </div>
 </body>
 </html>
